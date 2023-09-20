@@ -30,7 +30,7 @@ The daily note will be opened with your `EDITOR` variable. If this fails, the de
 
 > See `--help` for more information or [configuration](#configuration) to configure it.
 
-## Templating
+## Templates
 
 Yeah, that's support templates! Both static and dynamic. To use templates you must specify a file with the `-t` flag:
 
@@ -62,7 +62,13 @@ My friend Mike is going to the beach in 2023 at 15:47 in the afternoon....
 
 ## Install
 
-Add "yournal.py" to your system **PATH** and run it in your shell with `yournal.py` command.
+First clone this repository:
+
+```shell
+git clone https://github.com/Rikiub/yournal.py.git
+```
+
+And add the `yournal.py` file to your system **PATH** and run it in your shell with `yournal.py` command.
 
 For example, a common Linux user **PATH** is: *~/.local/bin*
 
