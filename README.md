@@ -24,11 +24,43 @@ For Windows:
 
 ```shell
 python yournal.py
-``` 
+```
 
 The daily note will be opened with your `EDITOR` variable. If this fails, the default text editor of your system will be used.
 
-> See `--help` for more information or [configuration](#configuration) to configure it.
+See `--help` for more information or [configuration](#configuration) to configure it.
+
+### CLI (Command Line Interface)
+
+```
+usage: yournal [-d DIRECTORY] [-t TEMPLATE] [-h] [-i] [-s] [-e EDITOR]
+
+Fast (y)ournal script to make Daily Notes on your terminal.
+
+paths:
+  -d DIRECTORY, --directory DIRECTORY
+                        directory where save your daily notes
+  -t TEMPLATE, --template TEMPLATE
+                        template file to parse. recommended use a markdown file
+
+options:
+  -h, --help            show this help message and exit
+  -i, --ignore          ignore environment variables.
+  -s, --skip            skip dynamic templates parse
+  -e EDITOR, --editor EDITOR
+                        use a custom editor command
+
+By default, yournal uses these environment variables when no arguments are provided:
+    YOURNAL_DIR for DIRECTORY
+    YOURNAL_TEMPLATE for TEMPLATE
+
+Dynamic templates supported: True
+
+To parse "dynamic variables" in templates you need to have the Python "arrow" package installed. You can install it with pip:
+    pip install arrow
+
+    The "Obsidian Templates" syntax is supported for now.
+```
 
 ## Install
 
@@ -58,7 +90,7 @@ Yeah, that's support templates! Both static and dynamic. To use templates you mu
 yournal.py -t path/to/template
 ```
 
-Also, you need install [this](#optional-dependences) to enable dynamic templates support. 
+Also, you need install [this](#optional-dependences) to enable dynamic templates support.
 
 For now, dynamic templates follow the [Obsidian Templates](https://help.obsidian.md/Plugins/Templates#Template+variables) syntax.
 

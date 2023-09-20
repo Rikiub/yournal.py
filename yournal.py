@@ -19,7 +19,7 @@ import os
 import locale
 import re
 
-# set the name of the environment variables. change it if you want to use other variables.
+# environment variables.
 ENV_DIR_NAME = "YOURNAL_DIR"
 ENV_TEMPLATE_NAME = "YOURNAL_TEMPLATE"
 
@@ -28,26 +28,25 @@ def parse_vars(text_to_parse: str) -> str:
     """Parse title and dates. Requires "arrow" package."""
     import arrow
 
-    system_locale = locale.getlocale()[0]
-    system_locale = system_locale.split("_", 1)[0]
     regex_pattern = "{{(\w+)(?::([^}]+))?}}"
 
     def replace_match(match):
         key = match.group(1)
         value = match.group(2)
 
+        # Obsidian Templates
         if key == "title":
-            return arrow.now().format("YYYY-MM-DD", locale=system_locale)
+            return arrow.now().format("YYYY-MM-DD")
         elif key == "date":
             if value is None:
-                return arrow.now().format("YYYY-MM-DD", locale=system_locale)
+                return arrow.now().format("YYYY-MM-DD")
             else:
-                return arrow.now().format(value, locale=system_locale)
+                return arrow.now().format(value)
         elif key == "time":
             if value is None:
-                return arrow.now().format("HH:mm", locale=system_locale)
+                return arrow.now().format("HH:mm")
             else:
-                return arrow.now().format(value, locale=system_locale)
+                return arrow.now().format(value)
 
     parsed_template = re.sub(regex_pattern, replace_match, text_to_parse)
     return parsed_template
@@ -72,31 +71,32 @@ def extract_text(file: Path) -> str:
 
 def open_file_with_editor(file: Path) -> None:
     """Open file with default system editor."""
+    global IGNORE_ENV, CUSTOM_EDITOR
 
-    if platform.system() in ("Windows", "Linux", "Darwin"):
-        EDITOR = os.getenv("EDITOR")
+    system = platform.system()
+    EDITOR = os.getenv("EDITOR")
 
-        try:
-            if EDITOR:
-                subprocess.call([EDITOR, file])
-            elif (
-                subprocess.call(["open", file]),
-                subprocess.call(["xdg-open", file]),
-                subprocess.call([file]),
-            ):
-                pass
-        except:
-            raise OSError("Failed to open system editor.")
+    if CUSTOM_EDITOR:
+        editor_env = [CUSTOM_EDITOR]
+    elif not IGNORE_ENV and EDITOR:
+        editor_env = [EDITOR]
+    elif system == "Windows":
+        editor_env = ["cmd", "/c", "start"]
+    elif system == "Linux":
+        editor_env = ["xdg-open"]
+    elif system == "Darwin":
+        editor_env = ["open"]
     else:
         raise OSError(
-            "Failed to determine your system. Valid systems: Windows, Linux, Darwin."
+            "Failed to open system editor. Supported OS: Windows, Linux, Darwin."
         )
+    subprocess.run([*editor_env, file])
 
 
 def daily_note(directory: Path, template: Path = None) -> None:
-    """Main function."""
+    """open/create Daily Note."""
+    global SKIP_TEMPLATE_PARSE
 
-    # open/create daily_note
     directory.mkdir(parents=True, exist_ok=True)
     daily_note = directory / f"{date.today()}.md"
 
@@ -107,18 +107,22 @@ def daily_note(directory: Path, template: Path = None) -> None:
     # create
     else:
         # parse template if exist
-        if isinstance(template, Path) and template.is_file():
-            if check_dynamic_templates_support():
-                text = extract_text(template)
-                template = parse_vars(text)
-            else:
-                template = extract_text(template)
+        if isinstance(template, Path):
+            if template.is_file():
+                if not SKIP_TEMPLATE_PARSE and check_dynamic_templates_support():
+                    text = extract_text(template)
+                    template = parse_vars(text)
+                else:
+                    template = extract_text(template)
 
-            with daily_note.open("w") as note:
-                note.write(template)
+                with daily_note.open("w") as note:
+                    note.write(template)
+            else:
+                raise FileNotFoundError(
+                    f'The template "{template}" not exist or not is a file.'
+                )
         else:
-            print(f'The template "{template}" not exist.')
-            raise SystemExit(1)
+            daily_note.touch()
 
         open_file_with_editor(daily_note)
 
@@ -128,11 +132,14 @@ def parseArguments() -> Namespace:
 
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
+        add_help=False,
         prog="yournal",
         description="Fast (y)ournal script to make Daily Notes on your terminal.",
         epilog=f"""By default, yournal uses these environment variables when no arguments are provided:
     {ENV_DIR_NAME} for DIRECTORY
     {ENV_TEMPLATE_NAME} for TEMPLATE
+
+Dynamic templates supported: {check_dynamic_templates_support()}
 
 To parse "dynamic variables" in templates you need to have the Python "arrow" package installed. You can install it with pip:
     pip install arrow
@@ -140,23 +147,52 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
     The "Obsidian Templates" syntax is supported for now.
 """,
     )
-    parser.add_argument(
+
+    paths = parser.add_argument_group("paths")
+    paths.add_argument(
         "-d",
         "--directory",
-        help="Directory where save your Daily Notes.",
+        help="directory where save your daily notes",
         default=os.getenv(ENV_DIR_NAME) or Path.cwd(),
         type=Path,
     )
-    parser.add_argument(
+    paths.add_argument(
         "-t",
         "--template",
-        help="Template file to parse. Recommended use a markdown file.",
+        help="template file to parse. recommended use a markdown file",
         default=os.getenv(ENV_TEMPLATE_NAME) or None,
         type=Path,
+    )
+
+    options = parser.add_argument_group("options")
+    options.add_argument(
+        "-h", "--help", action="help", help="show this help message and exit"
+    )
+    options.add_argument(
+        "-i",
+        "--ignore",
+        help="ignore environment variables.",
+        action="store_true",
+    )
+    options.add_argument(
+        "-s",
+        "--skip",
+        help="skip dynamic templates parse",
+        action="store_true",
+    )
+    options.add_argument(
+        "-e",
+        "--editor",
+        help="use a custom editor command",
     )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parseArguments()
+
+    CUSTOM_EDITOR = args.editor
+    IGNORE_ENV = args.ignore
+    SKIP_TEMPLATE_PARSE = args.skip
+
     daily_note(directory=args.directory, template=args.template)
