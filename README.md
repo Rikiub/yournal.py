@@ -1,4 +1,4 @@
-<div style="text-align: center;">
+<div align="center">
 
 # 📓yournal.py
 Fast (y)ournal script to make Daily Notes on your terminal.
