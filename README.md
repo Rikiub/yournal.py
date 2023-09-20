@@ -14,7 +14,7 @@ Fast (y)ournal script to make Daily Notes on your terminal.
 
 This is a Python script, so you need to have Python installed on your system (duh).
 
-So, if you are on Linux or MacOS, running the script is as easy as:
+If you are on Linux or MacOS, running the script is as easy as:
 
 ```shell
 ./yournal.py
@@ -55,12 +55,12 @@ pip install arrow
 Yeah, that's support templates! Both static and dynamic. To use templates you must specify a file with the `-t` flag:
 
 ```
-yournal.py -t path/to/template.md
+yournal.py -t path/to/template
 ```
 
-You need install [this](#optional-dependences) to enable dynamic templates support.
+Also, you need install [this](#optional-dependences) to enable dynamic templates support. 
 
-> For now, dynamic templates follow the [Obsidian Templates](https://help.obsidian.md/Plugins/Templates#Template+variables) syntax.
+For now, dynamic templates follow the [Obsidian Templates](https://help.obsidian.md/Plugins/Templates#Template+variables) syntax.
 
 ### Explaining dynamic templates
 
