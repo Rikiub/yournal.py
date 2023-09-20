@@ -3,7 +3,7 @@
 Author: Rikiub
 Repository: https://github.com/Rikiub/yournal.py
 
-Fast (y)ournal to make Daily Notes on your terminal.
+Fast (y)ournal script to make Daily Notes on your terminal.
 
 -h or --help to see usage help.
 """
@@ -20,8 +20,8 @@ import locale
 import re
 
 # set the name of the environment variables. change it if you want to use other variables.
-ENV_DIR_NAME = "JOURNAL_DIR"
-ENV_TEMPLATE_NAME = "JOURNAL_TEMPLATE"
+ENV_DIR_NAME = "YOURNAL_DIR"
+ENV_TEMPLATE_NAME = "YOURNAL_TEMPLATE"
 
 
 def parse_vars(text_to_parse: str) -> str:
@@ -54,7 +54,7 @@ def parse_vars(text_to_parse: str) -> str:
 
 
 def check_dynamic_templates_support() -> bool:
-    """Check if dependences are installed"""
+    """Check if dependences are installed."""
     try:
         import arrow
 
@@ -64,14 +64,14 @@ def check_dynamic_templates_support() -> bool:
 
 
 def extract_text(file: Path) -> str:
-    """Extract text from file"""
+    """Extract text from file."""
     with file.open("r") as file:
         text = file.read()
         return text
 
 
 def open_file_with_editor(file: Path) -> None:
-    """Open file with default system editor"""
+    """Open file with default system editor."""
 
     if platform.system() in ("Windows", "Linux", "Darwin"):
         EDITOR = os.getenv("EDITOR")
@@ -86,15 +86,15 @@ def open_file_with_editor(file: Path) -> None:
             ):
                 pass
         except:
-            raise OSError("Failed to open system editor")
+            raise OSError("Failed to open system editor.")
     else:
         raise OSError(
-            "Failed to determine your system. Valid systems: Windows, Linux, Darwin"
+            "Failed to determine your system. Valid systems: Windows, Linux, Darwin."
         )
 
 
 def daily_note(directory: Path, template: Path = None) -> None:
-    """Main function"""
+    """Main function."""
 
     # open/create daily_note
     directory.mkdir(parents=True, exist_ok=True)
@@ -106,24 +106,31 @@ def daily_note(directory: Path, template: Path = None) -> None:
 
     # create
     else:
-        if template and check_dynamic_templates_support():
-            text = extract_text(template)
-            template = parse_vars(text)
-        else:
-            template = extract_text(template)
+        # parse template if exist
+        if isinstance(template, Path):
+            if template.is_file():
+                if check_dynamic_templates_support():
+                    text = extract_text(template)
+                    template = parse_vars(text)
+                else:
+                    template = extract_text(template)
 
-        with daily_note.open("w") as note:
-            note.write(template)
+                with daily_note.open("w") as note:
+                    note.write(template)
+            else:
+                print(f'The template "{template}" not exist.')
+                raise SystemExit(1)
+
         open_file_with_editor(daily_note)
 
 
 def parseArguments() -> Namespace:
-    """CLI interface"""
+    """CLI interface."""
 
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
         prog="yournal",
-        description="Fast (y)ournal to make Daily Notes on your terminal.",
+        description="Fast (y)ournal script to make Daily Notes on your terminal.",
         epilog=f"""By default, yournal uses these environment variables when no arguments are provided:
     {ENV_DIR_NAME} for DIRECTORY
     {ENV_TEMPLATE_NAME} for TEMPLATE
@@ -144,7 +151,7 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
     parser.add_argument(
         "-t",
         "--template",
-        help='Template file to parse, recommended use a Markdown file. This accept "Obsidian Templates" syntax.',
+        help="Template file to parse. Recommended use a markdown file.",
         default=os.getenv(ENV_TEMPLATE_NAME) or None,
         type=Path,
     )
