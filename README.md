@@ -6,6 +6,8 @@ Fast (y)ournal script to make Daily Notes on your terminal.
 ![Python](https://img.shields.io/badge/python-default?logo=python)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
+![intro](intro.gif)
+
 </div>
 
 ## Usage
