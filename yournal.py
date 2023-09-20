@@ -107,19 +107,18 @@ def daily_note(directory: Path, template: Path = None) -> None:
     # create
     else:
         # parse template if exist
-        if isinstance(template, Path):
-            if template.is_file():
-                if check_dynamic_templates_support():
-                    text = extract_text(template)
-                    template = parse_vars(text)
-                else:
-                    template = extract_text(template)
-
-                with daily_note.open("w") as note:
-                    note.write(template)
+        if isinstance(template, Path) and template.is_file():
+            if check_dynamic_templates_support():
+                text = extract_text(template)
+                template = parse_vars(text)
             else:
-                print(f'The template "{template}" not exist.')
-                raise SystemExit(1)
+                template = extract_text(template)
+
+            with daily_note.open("w") as note:
+                note.write(template)
+        else:
+            print(f'The template "{template}" not exist.')
+            raise SystemExit(1)
 
         open_file_with_editor(daily_note)
 
