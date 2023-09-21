@@ -159,7 +159,7 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
     paths.add_argument(
         "-t",
         "--template",
-        help="template file to parse. recommended use a markdown file",
+        help="template file to parse",
         default=os.getenv(ENV_TEMPLATE_NAME) or None,
         type=Path,
     )
@@ -171,7 +171,7 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
     options.add_argument(
         "-i",
         "--ignore",
-        help="ignore environment variables.",
+        help="ignore environment variables",
         action="store_true",
     )
     options.add_argument(
