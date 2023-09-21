@@ -41,11 +41,11 @@ paths:
   -d DIRECTORY, --directory DIRECTORY
                         directory where save your daily notes
   -t TEMPLATE, --template TEMPLATE
-                        template file to parse. recommended use a markdown file
+                        template file to parse
 
 options:
   -h, --help            show this help message and exit
-  -i, --ignore          ignore environment variables.
+  -i, --ignore          ignore environment variables
   -s, --skip            skip dynamic templates parse
   -e EDITOR, --editor EDITOR
                         use a custom editor command
