@@ -33,9 +33,13 @@ See `--help` for more information or [configuration](#configuration) to configur
 ### CLI (Command Line Interface)
 
 ```
-usage: yournal [-d DIRECTORY] [-t TEMPLATE] [-h] [-i] [-s] [-e EDITOR]
+usage: yournal [-d DIRECTORY] [-t TEMPLATE] [-h] [-i] [-s] [-e EDITOR] [{yesterday,today,tomorrow}]
 
 Fast (y)ournal script to make Daily Notes on your terminal.
+
+date:
+  {yesterday,today,tomorrow}
+                        open daily note by date. default: today
 
 paths:
   -d DIRECTORY, --directory DIRECTORY
