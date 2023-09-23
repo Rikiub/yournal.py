@@ -9,7 +9,7 @@ Fast (y)ournal script to make Daily Notes on your terminal.
 """
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 import subprocess
 import platform
@@ -22,6 +22,8 @@ import re
 # environment variables.
 ENV_DIR_NAME = "YOURNAL_DIR"
 ENV_TEMPLATE_NAME = "YOURNAL_TEMPLATE"
+
+DATE_NOW = date.today()
 
 
 def parse_vars(text_to_parse: str) -> str:
@@ -93,12 +95,12 @@ def open_file_with_editor(file: Path) -> None:
     subprocess.run([*editor_env, file])
 
 
-def daily_note(directory: Path, template: Path = None) -> None:
+def daily_note(date: str, directory: Path, template: Path = None) -> None:
     """open/create Daily Note."""
     global SKIP_TEMPLATE_PARSE
 
     directory.mkdir(parents=True, exist_ok=True)
-    daily_note = directory / f"{date.today()}.md"
+    daily_note = directory / str(f"{date}.md")
 
     # open
     if daily_note.exists():
@@ -148,19 +150,29 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
 """,
     )
 
+    date = parser.add_argument_group("date")
+    date.add_argument(
+        "date",
+        help="open daily note by date. default: today",
+        choices=["yesterday", "today", "tomorrow"],
+        default="today",
+        nargs="?",
+        type=str,
+    )
+
     paths = parser.add_argument_group("paths")
     paths.add_argument(
         "-d",
         "--directory",
         help="directory where save your daily notes",
-        default=os.getenv(ENV_DIR_NAME) or Path.cwd(),
+        default=Path.cwd(),
         type=Path,
     )
     paths.add_argument(
         "-t",
         "--template",
         help="template file to parse",
-        default=os.getenv(ENV_TEMPLATE_NAME) or None,
+        default=None,
         type=Path,
     )
 
@@ -191,8 +203,28 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
 if __name__ == "__main__":
     args = parseArguments()
 
+    # set global vars
     CUSTOM_EDITOR = args.editor
     IGNORE_ENV = args.ignore
     SKIP_TEMPLATE_PARSE = args.skip
 
-    daily_note(directory=args.directory, template=args.template)
+    if not args.ignore:
+        directory = os.getenv(ENV_DIR_NAME)
+        template = os.getenv(ENV_TEMPLATE_NAME)
+
+        if directory:
+            args.directory = Path(directory)
+        if template:
+            args.template = Path(template)
+
+    # parse date
+    date = args.date
+    if date == "yesterday":
+        date = DATE_NOW - timedelta(days=1)
+    elif date == "today":
+        date = DATE_NOW
+    elif date == "tomorrow":
+        date == DATE_NOW + timedelta(days=1)
+
+    # start
+    daily_note(date, directory=args.directory, template=args.template)
