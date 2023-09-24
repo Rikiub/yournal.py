@@ -2,10 +2,7 @@
 """
 Author: Rikiub
 Repository: https://github.com/Rikiub/yournal.py
-
-Fast (y)ournal script to make Daily Notes on your terminal.
-
--h or --help to see usage help.
+Version: 1.0.0
 """
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
@@ -44,7 +41,7 @@ def open_file_with_editor(file: Path) -> None:
         subprocess.run([*editor_env, file])
     except FileNotFoundError as e:
         print(
-            f'ERROR: Failed to open "{e.filename}" editor, check your EDITOR variable/argument. \nSupported OS: Windows, Linux, Darwin.'
+            f'ERROR: Failed to open "{e.filename}" editor, check your EDITOR variable/argument.\nSupported OS: Windows, Linux, Darwin.'
         )
         raise SystemExit(1)
 
@@ -92,7 +89,7 @@ def parseArguments() -> Namespace:
         formatter_class=RawDescriptionHelpFormatter,
         add_help=False,
         prog="yournal",
-        description="Fast (y)ournal script to make Daily Notes on your terminal.",
+        description="Fast (y)ournal script to make daily notes on your terminal.",
         epilog=f"""By default, yournal uses these environment variables when no arguments are provided:
     {ENV_EXTENSION_NAME} for daily note file extension
     {ENV_DIRECTORY_NAME} for DIRECTORY
