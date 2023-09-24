@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📓yournal.py
+# yournal.py
 Fast (y)ournal script to make daily notes on your terminal.
 
 ![Python](https://img.shields.io/badge/python-default?logo=python)
