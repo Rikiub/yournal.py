@@ -15,117 +15,73 @@ import subprocess
 import platform
 import os
 
-# modules for templating support
-import locale
-import re
 
-# environment variables.
-ENV_DIR_NAME = "YOURNAL_DIR"
+# constants
+ENV_EXTENSION_NAME = "YOURNAL_EXTENSION"
+ENV_DIRECTORY_NAME = "YOURNAL_DIRECTORY"
 ENV_TEMPLATE_NAME = "YOURNAL_TEMPLATE"
-
 DATE_NOW = date.today()
-
-
-def parse_vars(text_to_parse: str) -> str:
-    """Parse title and dates. Requires "arrow" package."""
-    import arrow
-
-    regex_pattern = "{{(\w+)(?::([^}]+))?}}"
-
-    def replace_match(match):
-        key = match.group(1)
-        value = match.group(2)
-
-        # Obsidian Templates
-        if key == "title":
-            return arrow.now().format("YYYY-MM-DD")
-        elif key == "date":
-            if value is None:
-                return arrow.now().format("YYYY-MM-DD")
-            else:
-                return arrow.now().format(value)
-        elif key == "time":
-            if value is None:
-                return arrow.now().format("HH:mm")
-            else:
-                return arrow.now().format(value)
-
-    parsed_template = re.sub(regex_pattern, replace_match, text_to_parse)
-    return parsed_template
-
-
-def check_dynamic_templates_support() -> bool:
-    """Check if dependences are installed."""
-    try:
-        import arrow
-
-        return True
-    except:
-        return False
-
-
-def extract_text(file: Path) -> str:
-    """Extract text from file."""
-    with file.open("r") as file:
-        text = file.read()
-        return text
+WEEKLY_DATES = {
+    "yesterday": DATE_NOW - timedelta(days=1),
+    "today": DATE_NOW,
+    "tomorrow": DATE_NOW + timedelta(days=1),
+}
 
 
 def open_file_with_editor(file: Path) -> None:
     """Open file with default system editor."""
-    global IGNORE_ENV, CUSTOM_EDITOR
-
     system = platform.system()
-    EDITOR = os.getenv("EDITOR")
 
-    if CUSTOM_EDITOR:
-        editor_env = [CUSTOM_EDITOR]
-    elif not IGNORE_ENV and EDITOR:
-        editor_env = [EDITOR]
-    elif system == "Windows":
-        editor_env = ["cmd", "/c", "start"]
-    elif system == "Linux":
-        editor_env = ["xdg-open"]
-    elif system == "Darwin":
-        editor_env = ["open"]
-    else:
-        raise OSError(
-            "Failed to open system editor. Supported OS: Windows, Linux, Darwin."
+    try:
+        if editor := EDITOR:
+            editor_env = [editor]
+        elif system == "Windows":
+            editor_env = ["cmd", "/c", "start"]
+        elif system == "Linux":
+            editor_env = ["xdg-open"]
+        elif system == "Darwin":
+            editor_env = ["open"]
+        subprocess.run([*editor_env, file])
+    except FileNotFoundError as e:
+        print(
+            f'ERROR: Failed to open "{e.filename}" editor, check your EDITOR variable/argument. \nSupported OS: Windows, Linux, Darwin.'
         )
-    subprocess.run([*editor_env, file])
+        raise SystemExit(1)
 
 
-def daily_note(date: str, directory: Path, template: Path = None) -> None:
+def daily_note(
+    file_date: str, directory: Path, template: Path = None, file_extension: str = "md"
+) -> None:
     """open/create Daily Note."""
-    global SKIP_TEMPLATE_PARSE
+
+    message_create = f'Creating "{file_date}" daily note.'
+    message_open = f'Opening "{file_date}" daily note.'
 
     directory.mkdir(parents=True, exist_ok=True)
-    daily_note = directory / str(f"{date}.md")
+    daily_note = directory / str(f"{file_date}.{file_extension}")
 
     # open
     if daily_note.exists():
+        print(message_open)
         open_file_with_editor(daily_note)
 
     # create
     else:
-        # parse template if exist
-        if isinstance(template, Path):
-            if template.is_file():
-                if not SKIP_TEMPLATE_PARSE and check_dynamic_templates_support():
-                    text = extract_text(template)
-                    template = parse_vars(text)
-                else:
-                    template = extract_text(template)
+        print(message_create)
 
-                with daily_note.open("w") as note:
-                    note.write(template)
-            else:
-                raise FileNotFoundError(
-                    f'The template "{template}" not exist or not is a file.'
+        if template:
+            try:
+                text = template.read_text()
+                daily_note.write_text(text)
+            except FileNotFoundError:
+                print(
+                    f'ERROR: template "{template}" not exist or not is a plain text file.'
                 )
+                raise SystemExit(1)
         else:
             daily_note.touch()
 
+        print(message_open)
         open_file_with_editor(daily_note)
 
 
@@ -138,23 +94,17 @@ def parseArguments() -> Namespace:
         prog="yournal",
         description="Fast (y)ournal script to make Daily Notes on your terminal.",
         epilog=f"""By default, yournal uses these environment variables when no arguments are provided:
-    {ENV_DIR_NAME} for DIRECTORY
+    {ENV_DIRECTORY_NAME} for DIRECTORY
     {ENV_TEMPLATE_NAME} for TEMPLATE
-
-Dynamic templates supported: {check_dynamic_templates_support()}
-
-To parse "dynamic variables" in templates you need to have the Python "arrow" package installed. You can install it with pip:
-    pip install arrow
-
-    The "Obsidian Templates" syntax is supported for now.
+    {ENV_EXTENSION_NAME} for daily note file extension
 """,
     )
 
-    date = parser.add_argument_group("date")
-    date.add_argument(
-        "date",
-        help="open daily note by date. default: today",
-        choices=["yesterday", "today", "tomorrow"],
+    dates = parser.add_argument_group("dates")
+    dates.add_argument(
+        "dates",
+        help="open daily note by date. DEFAULT: today",
+        choices=[*WEEKLY_DATES.keys()],
         default="today",
         nargs="?",
         type=str,
@@ -162,17 +112,24 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
 
     paths = parser.add_argument_group("paths")
     paths.add_argument(
+        "-x",
+        "--extension",
+        help='set daily note file extension. DEFAULT: "md" (markdown)',
+        default=os.getenv(ENV_EXTENSION_NAME) or "md",
+        type=str,
+    )
+    paths.add_argument(
         "-d",
         "--directory",
-        help="directory where save your daily notes",
-        default=Path.cwd(),
+        help="directory where save your daily notes. DEFAULT: cwd (current working directory)",
+        default=os.getenv(ENV_DIRECTORY_NAME) or Path.cwd(),
         type=Path,
     )
     paths.add_argument(
         "-t",
         "--template",
-        help="template file to parse",
-        default=None,
+        help="template file to use",
+        default=os.getenv(ENV_TEMPLATE_NAME) or None,
         type=Path,
     )
 
@@ -183,19 +140,15 @@ To parse "dynamic variables" in templates you need to have the Python "arrow" pa
     options.add_argument(
         "-i",
         "--ignore",
-        help="ignore environment variables",
-        action="store_true",
-    )
-    options.add_argument(
-        "-s",
-        "--skip",
-        help="skip dynamic templates parse",
+        help="ignore EDITOR environment variable and use system editor",
         action="store_true",
     )
     options.add_argument(
         "-e",
         "--editor",
         help="use a custom editor command",
+        default=os.getenv("EDITOR") or None,
+        type=str,
     )
     return parser.parse_args()
 
@@ -204,27 +157,15 @@ if __name__ == "__main__":
     args = parseArguments()
 
     # set global vars
-    CUSTOM_EDITOR = args.editor
-    IGNORE_ENV = args.ignore
-    SKIP_TEMPLATE_PARSE = args.skip
-
-    if not args.ignore:
-        directory = os.getenv(ENV_DIR_NAME)
-        template = os.getenv(ENV_TEMPLATE_NAME)
-
-        if directory:
-            args.directory = Path(directory)
-        if template:
-            args.template = Path(template)
-
-    # parse date
-    date = args.date
-    if date == "yesterday":
-        date = DATE_NOW - timedelta(days=1)
-    elif date == "today":
-        date = DATE_NOW
-    elif date == "tomorrow":
-        date == DATE_NOW + timedelta(days=1)
+    if args.ignore:
+        EDITOR = None
+    else:
+        EDITOR = args.editor
 
     # start
-    daily_note(date, directory=args.directory, template=args.template)
+    daily_note(
+        file_date=WEEKLY_DATES[args.dates],
+        directory=args.directory,
+        template=args.template,
+        file_extension=args.extension,
+    )
