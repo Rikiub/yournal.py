@@ -94,9 +94,9 @@ def parseArguments() -> Namespace:
         prog="yournal",
         description="Fast (y)ournal script to make Daily Notes on your terminal.",
         epilog=f"""By default, yournal uses these environment variables when no arguments are provided:
+    {ENV_EXTENSION_NAME} for daily note file extension
     {ENV_DIRECTORY_NAME} for DIRECTORY
     {ENV_TEMPLATE_NAME} for TEMPLATE
-    {ENV_EXTENSION_NAME} for daily note file extension
 """,
     )
 
