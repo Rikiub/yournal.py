@@ -7,6 +7,7 @@ Version: 1.0.0
 
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from datetime import date, timedelta
+from typing import Optional
 from pathlib import Path
 import subprocess
 import platform
@@ -17,17 +18,18 @@ import os
 ENV_EXTENSION_NAME = "YOURNAL_EXTENSION"
 ENV_DIRECTORY_NAME = "YOURNAL_DIRECTORY"
 ENV_TEMPLATE_NAME = "YOURNAL_TEMPLATE"
-DATE_NOW = date.today()
+DATE_NOW: date = date.today()
 WEEKLY_DATES = {
-    "yesterday": DATE_NOW - timedelta(days=1),
-    "today": DATE_NOW,
-    "tomorrow": DATE_NOW + timedelta(days=1),
+    "yesterday": str(DATE_NOW - timedelta(days=1)),
+    "today": str(DATE_NOW),
+    "tomorrow": str(DATE_NOW + timedelta(days=1)),
 }
 
 
 def open_file_with_editor(file: Path) -> None:
     """Open file with default system editor."""
     system = platform.system()
+    editor_env = []
 
     try:
         if editor := EDITOR:
@@ -47,7 +49,10 @@ def open_file_with_editor(file: Path) -> None:
 
 
 def daily_note(
-    file_date: str, directory: Path, template: Path = None, file_extension: str = "md"
+    file_date: str,
+    directory: Path,
+    template: Optional[Path] = None,
+    file_extension: str = "md",
 ) -> None:
     """open/create Daily Note."""
 
@@ -55,7 +60,7 @@ def daily_note(
     message_open = f'Opening "{file_date}" daily note.'
 
     directory.mkdir(parents=True, exist_ok=True)
-    daily_note = directory / str(f"{file_date}.{file_extension}")
+    daily_note = directory / f"{file_date}.{file_extension}"
 
     # open
     if daily_note.exists():
