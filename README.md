@@ -1,7 +1,7 @@
 <div align="center">
 
 # yournal.py
-Fast (y)ournal script to make daily notes on your terminal.
+Fast (y)ournal script to make daily notes from your terminal.
 
 ![Python](https://img.shields.io/badge/python-default?logo=python)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
