@@ -32,7 +32,7 @@ python yournal.py
 
 Or if you [installed](#installation) it...
 
-```shel
+```shell
 yournal
 ```
 
