@@ -82,7 +82,7 @@ yay -S yournal
 
 ### Manual
 
-Download the lastest [release](https://github.com/Rikiub/yournal.py/releases) and get the `yournal.py` file.
+Download the lastest [release](https://github.com/Rikiub/yournal.py/releases/latest) and get the `yournal.py` file.
 
 You can use this script directly with `python yournal.py`, but for a better integration, add the `yournal.py` file to your system **PATH**.
 
