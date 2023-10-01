@@ -6,7 +6,7 @@ Fast (y)ournal script to make daily notes from your terminal.
 ![Python](https://img.shields.io/badge/python-default?logo=python)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-![intro](https://github.com/Rikiub/yournal.py/blob/6fe4c41afa54eff7008a6852f240261d59f16b3b/intro.gif)
+![intro](https://raw.githubusercontent.com/Rikiub/yournal.py/main/intro.gif)
 
 </div>
 
