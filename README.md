@@ -30,18 +30,17 @@ python yournal.py
 ./yournal.py
 ```
 
-Or if you [installed](#installation) it...
+Or if you [installed](#installation) it..
 
 ```shell
 yournal
 ```
 
-> By default, the daily note will be opened with your `EDITOR` variable. If this fails, the default text editor of your system will be used. 
-
 ### 📅 Open/create daily note by date
 ```shell
 yournal [yesterday|today|tomorrow]
 ```
+> By default, the daily note will be opened with your `EDITOR` variable. If this fails, the default text editor of your system will be used. 
 
 ### 🔧📄 Configuration and templates
 ```shell
@@ -53,19 +52,39 @@ yournal -d <path/to/dir> -t <path/to/template>
 
 > Minium **Python** version: 3.8
 
-First you need to have **Python** installed on your system, then clone this repository:
+### Pipx (Recommended)
+
+The easy way. If you have [Pipx](https://pypa.github.io/pipx/) installed simply type in your shell:
 
 ```shell
-git clone https://github.com/Rikiub/yournal.py.git
+pipx install yournal
 ```
 
-Or instead, download the lastest [release](https://github.com/Rikiub/yournal.py/releases).
+### Pip
 
-You can use this script directly with `python yournal.py`, but for a better integration, read on.
+The classic way. Type in your shell:
 
----
+```shell
+pip install yournal
+```
 
-Add the `yournal.py` file to your system **PATH**.
+### AUR (Arch Linux)
+
+[![latest packaged version(s)](https://repology.org/badge/latest-versions/yournal.svg)](https://repology.org/project/yournal/versions)
+
+Use an **AUR** helper such as:
+```shell
+paru -S yournal
+```
+```shell
+yay -S yournal
+```
+
+### Manual
+
+Download the lastest [release](https://github.com/Rikiub/yournal.py/releases) and get the `yournal.py` file.
+
+You can use this script directly with `python yournal.py`, but for a better integration, add the `yournal.py` file to your system **PATH**.
 
 - For example, a common **Linux** user **PATH** is: `~/.local/bin`. 
 - For other systems, please investigate.
@@ -74,11 +93,22 @@ Add the `yournal.py` file to your system **PATH**.
 
 ## Configuration
 
+### Enviroment variables
+
 By default, `yournal` will create the daily notes in the current working directory, along with other settings To change this behavior, you need to set these environment variables on your system:
 
 - `YOURNAL_EXTENSION` for daily note file extension
 - `YOURNAL_DIRECTORY` for the directory where the daily notes will be saved.
 - `YOURNAL_TEMPLATE` for the template file to use.
+
+### Shell aliases
+
+You can create a shell `alias` for yournal with custom arguments.
+
+In **Bash** you can do this by adding the following to your `.bashrc` file. For **Zsh**, in `.zshrc`.
+```shell
+alias yournal="yournal -d path/to/dir -t path/to/template"
+```
 
 ## CLI (Command Line Interface)
 
