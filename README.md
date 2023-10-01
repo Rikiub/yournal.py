@@ -67,9 +67,8 @@ You can use this script directly with `python yournal.py`, but for a better inte
 
 Add the `yournal.py` file to your system **PATH**.
 
-For example, a common **Linux** user **PATH** is: `~/.local/bin`. 
-<br>
-For other systems, please investigate.
+- For example, a common **Linux** user **PATH** is: `~/.local/bin`. 
+- For other systems, please investigate.
 
 > Rename `yournal.py` to `yournal` if you want a shorter command.
 
