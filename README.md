@@ -13,7 +13,7 @@ Fast (y)ournal script to make daily notes from your terminal.
 ## Features
 
 - 🍃 Lighweight, fast and snappy. It is a pure Python script.
-- 📅 [`yesterday` | `today` | `tomorrow`] date navigation.
+- 📅 `[yesterday | today | tomorrow ]` date navigation.
 - 🔧 Enviroment variables based [configuration](#configuration).
 - 📄 Simple template support.
 
