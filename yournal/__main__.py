@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-Author: Rikiub
-Repository: https://github.com/Rikiub/yournal.py
-Version: 1.0.0
-"""
-
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from datetime import date, timedelta
 from typing import Optional
@@ -12,7 +6,6 @@ from pathlib import Path
 import subprocess
 import platform
 import os
-
 
 # constants
 ENV_EXTENSION_NAME = "YOURNAL_EXTENSION"
@@ -40,7 +33,8 @@ def open_file_with_editor(file: Path) -> None:
             editor_env = ["xdg-open"]
         elif system == "Darwin":
             editor_env = ["open"]
-        subprocess.run([*editor_env, file])
+        args = [*editor_env, file]
+        subprocess.run(args)
     except FileNotFoundError as e:
         print(
             f'ERROR: Failed to open "{e.filename}" editor, check your EDITOR variable/argument.\nSupported OS: Windows, Linux, Darwin.'
@@ -60,12 +54,12 @@ def daily_note(
     message_open = f'Opening "{file_date}" daily note.'
 
     directory.mkdir(parents=True, exist_ok=True)
-    daily_note = directory / f"{file_date}.{file_extension}"
+    note = directory / f"{file_date}.{file_extension}"
 
     # open
-    if daily_note.exists():
+    if note.exists():
         print(message_open)
-        open_file_with_editor(daily_note)
+        open_file_with_editor(note)
 
     # create
     else:
@@ -74,17 +68,17 @@ def daily_note(
         if template:
             try:
                 text = template.read_text()
-                daily_note.write_text(text)
+                note.write_text(text)
             except FileNotFoundError:
                 print(
                     f'ERROR: template "{template}" not exist or not is a plain text file.'
                 )
                 raise SystemExit(1)
         else:
-            daily_note.touch()
+            note.touch()
 
         print(message_open)
-        open_file_with_editor(daily_note)
+        open_file_with_editor(note)
 
 
 def parseArguments() -> Namespace:
@@ -155,10 +149,11 @@ def parseArguments() -> Namespace:
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     args = parseArguments()
 
     # set global vars
+    global EDITOR
     if args.ignore:
         EDITOR = None
     else:
@@ -171,3 +166,7 @@ if __name__ == "__main__":
         template=args.template,
         file_extension=args.extension,
     )
+
+
+if __name__ == "__main__":
+    main()
