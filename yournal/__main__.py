@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser, Namespace, RawDescriptionHelpFormatter
 from datetime import date, timedelta
-from typing import Optional
 from pathlib import Path
 import subprocess
 import platform
@@ -45,7 +44,7 @@ def open_file_with_editor(file: Path) -> None:
 def daily_note(
     file_date: str,
     directory: Path,
-    template: Optional[Path] = None,
+    template: Path | None = None,
     file_extension: str = "md",
 ) -> None:
     """open/create Daily Note."""
